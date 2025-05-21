@@ -16,7 +16,7 @@ const CapitalGainsCard = ({
   savings = null 
 }: CapitalGainsCardProps) => {
   const cardStyle = type === "pre" 
-    ? "bg-koinx-dark-card" 
+    ? "bg-koinx-dark-card border border-gray-800" 
     : "bg-koinx-blue text-white";
   
   // Calculate net values
@@ -47,7 +47,7 @@ const CapitalGainsCard = ({
               </div>
               <div className="flex justify-between font-medium">
                 <span>Net Capital Gains</span>
-                <span className={stcgNet < 0 ? "text-koinx-red" : ""}>
+                <span className="text-white">
                   {formatCurrency(stcgNet)}
                 </span>
               </div>
@@ -68,7 +68,7 @@ const CapitalGainsCard = ({
               </div>
               <div className="flex justify-between font-medium">
                 <span>Net Capital Gains</span>
-                <span className={ltcgNet < 0 ? "text-koinx-red" : ""}>
+                <span className="text-white">
                   {formatCurrency(ltcgNet)}
                 </span>
               </div>
@@ -80,7 +80,7 @@ const CapitalGainsCard = ({
       <div className="border-t border-gray-700 pt-4">
         <div className="flex justify-between items-center">
           <h4 className="text-lg font-semibold">{netTitle}</h4>
-          <span className={`text-lg font-bold ${totalNet < 0 ? "text-koinx-red" : ""}`}>
+          <span className="text-lg font-bold text-white">
             {formatCurrency(totalNet)}
           </span>
         </div>

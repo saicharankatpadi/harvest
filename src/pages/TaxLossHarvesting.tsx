@@ -8,6 +8,7 @@ import CapitalGainsCard from "@/components/CapitalGainsCard";
 import HoldingsTable from "@/components/HoldingsTable";
 import { InfoIcon } from "lucide-react";
 import TaxOptimizationHint from "@/components/TaxOptimizationHint";
+import HowItWorks from "@/components/HowItWorks";
 
 const TaxLossHarvesting = () => {
   const [holdings, setHoldings] = useState<Holding[]>([]);
@@ -119,15 +120,18 @@ const TaxLossHarvesting = () => {
   return (
     <div className="min-h-screen bg-koinx-dark text-white">
       <div className="container mx-auto px-4 py-12">
-        <h1 className="text-5xl font-bold mb-8">Tax Optimisation</h1>
+        <div className="flex items-center mb-6">
+          <h1 className="text-4xl font-bold">Tax Optimisation</h1>
+          <HowItWorks />
+        </div>
         
         <div className="flex items-center mb-4">
-          <h2 className="text-2xl font-semibold">Tax Loss Harvesting</h2>
           <button 
-            className="ml-2 text-blue-400 hover:text-blue-300 transition-colors"
+            className="flex items-center text-2xl font-semibold"
             onClick={() => setIsInfoVisible(!isInfoVisible)}
           >
-            <InfoIcon size={20} />
+            <InfoIcon size={22} className="text-blue-400 mr-2" />
+            <span>Important Notes And Disclaimers</span>
           </button>
         </div>
         
@@ -163,15 +167,12 @@ const TaxLossHarvesting = () => {
             </div>
             
             {/* Holdings Table */}
-            <div className="mb-8">
-              <h2 className="text-2xl font-semibold mb-4">Holdings</h2>
-              
-              <HoldingsTable 
-                holdings={holdings}
-                onSelectHolding={handleSelectHolding}
-                onSelectAll={handleSelectAll}
-              />
-            </div>
+            <HoldingsTable 
+              holdings={holdings}
+              onSelectHolding={handleSelectHolding}
+              onSelectAll={handleSelectAll}
+              visibleCount={4}
+            />
           </>
         )}
       </div>
