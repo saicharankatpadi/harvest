@@ -220,18 +220,53 @@ const HoldingsTable = ({
                   className="px-4 py-4 cursor-pointer hover:bg-gray-700/30" 
                   onClick={() => onSelectGain(sortedHoldings.indexOf(holding), 'stcg')}
                 >
-                  <div className={`${holding.stcg.gain < 0 ? "text-koinx-red" : "text-koinx-green"}`}>
-                    {formatCurrency(holding.stcg.gain)}
-                  </div>
+    <HoverCard openDelay={0}>
+    <HoverCardTrigger asChild>
+      <div className={`${holding.stcg.gain < 0 ? "text-koinx-red" : "text-koinx-green"} cursor-default`}>
+        {formatCurrency(holding.stcg.gain)}
+      </div>
+    </HoverCardTrigger>
+    <HoverCardContent
+      align="center"
+      side="top"
+      sideOffset={4}
+      className="bg-white text-black border border-gray-300 text-xs px-2 py-1 shadow-md rounded-sm font-medium w-fit max-w-xs"
+    >
+      {holding.stcg.gain.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}
+    </HoverCardContent>
+  </HoverCard>
                   <div className="text-xs text-gray-400">{formatNumber(holding.stcg.balance)} {holding.coin}</div>
                 </td>
                 <td 
                   className="px-4 py-4 cursor-pointer hover:bg-gray-700/30"
                   onClick={() => onSelectGain(sortedHoldings.indexOf(holding), 'ltcg')}
                 >
-                  <div className={`${holding.ltcg.gain < 0 ? "text-koinx-red" : "text-koinx-green"}`}>
-                    {formatCurrency(holding.ltcg.gain)}
-                  </div>
+    <HoverCard openDelay={0}>
+    <HoverCardTrigger asChild>
+      <div className={`${holding.ltcg.gain < 0 ? "text-koinx-red" : "text-koinx-green"} cursor-default`}>
+        {formatCurrency(holding.ltcg.gain)}
+      </div>
+    </HoverCardTrigger>
+    <HoverCardContent
+      align="center"
+      side="top"
+      sideOffset={4}
+      className="bg-white text-black border border-gray-300 text-xs px-2 py-1 shadow-md rounded-sm font-medium w-fit max-w-xs"
+    >
+      {holding.ltcg.gain.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}
+    </HoverCardContent>
+  </HoverCard>
+                 
                   <div className="text-xs text-gray-400">{formatNumber(holding.ltcg.balance)} {holding.coin}</div>
                 </td>
                 <td className="px-4 py-4">
