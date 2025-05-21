@@ -69,12 +69,12 @@ const TaxLossHarvesting = () => {
 
   // Handle selecting a specific gain type (stcg or ltcg)
   const handleSelectGain = (index: number, gainType: 'stcg' | 'ltcg') => {
-    // Clone the original capital gains
-    if (!originalCapitalGains) return;
+    if (!originalCapitalGains || !afterHarvestingGains) return;
 
+    // Create a new reference of afterHarvestingGains to avoid direct mutation
     const newGains: CapitalGains = {
-      stcg: { ...originalCapitalGains.stcg },
-      ltcg: { ...originalCapitalGains.ltcg }
+      stcg: { ...afterHarvestingGains.stcg },
+      ltcg: { ...afterHarvestingGains.ltcg }
     };
 
     const holding = holdings[index];
@@ -82,16 +82,18 @@ const TaxLossHarvesting = () => {
 
     // Update the appropriate profit or loss in the capital gains
     if (gainType === 'stcg') {
-      if (gain > 0) {
-        newGains.stcg.profits += gain;
-      } else if (gain < 0) {
+      if (gain < 0) {
+        // For losses, we add to the losses total
         newGains.stcg.losses += Math.abs(gain);
+      } else {
+        // For profits, we add to the profits total
+        newGains.stcg.profits += gain;
       }
     } else if (gainType === 'ltcg') {
-      if (gain > 0) {
-        newGains.ltcg.profits += gain;
-      } else if (gain < 0) {
+      if (gain < 0) {
         newGains.ltcg.losses += Math.abs(gain);
+      } else {
+        newGains.ltcg.profits += gain;
       }
     }
 
@@ -102,6 +104,7 @@ const TaxLossHarvesting = () => {
   const updateAfterHarvestingGains = (updatedHoldings: Holding[]) => {
     if (!originalCapitalGains) return;
 
+    // Start with original values
     const newGains: CapitalGains = {
       stcg: { ...originalCapitalGains.stcg },
       ltcg: { ...originalCapitalGains.ltcg }

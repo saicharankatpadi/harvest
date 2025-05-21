@@ -4,7 +4,6 @@ import { formatCurrency, formatNumber, getGainClass } from "@/utils/formatter";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
 import { ChevronDown, ChevronUp, InfoIcon } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 
 interface HoldingsTableProps {
@@ -110,7 +109,7 @@ const HoldingsTable = ({
                   id="selectAll" 
                   checked={selectAll}
                   onCheckedChange={(checked) => handleSelectAll(checked as boolean)}
-                  className="border-white text-white" 
+                  className="data-[state=checked]:bg-white data-[state=checked]:text-black border-white" 
                 />
               </th>
               <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
@@ -224,7 +223,7 @@ const HoldingsTable = ({
                   <div className={`${holding.stcg.gain < 0 ? "text-koinx-red" : "text-koinx-green"}`}>
                     {formatCurrency(holding.stcg.gain)}
                   </div>
-                  <div className="text-xs text-gray-400">{formatNumber(holding.stcg.balance)}</div>
+                  <div className="text-xs text-gray-400">{formatNumber(holding.stcg.balance)} {holding.coin}</div>
                 </td>
                 <td 
                   className="px-4 py-4 cursor-pointer hover:bg-gray-700/30"
@@ -233,7 +232,7 @@ const HoldingsTable = ({
                   <div className={`${holding.ltcg.gain < 0 ? "text-koinx-red" : "text-koinx-green"}`}>
                     {formatCurrency(holding.ltcg.gain)}
                   </div>
-                  <div className="text-xs text-gray-400">{formatNumber(holding.ltcg.balance)}</div>
+                  <div className="text-xs text-gray-400">{formatNumber(holding.ltcg.balance)} {holding.coin}</div>
                 </td>
                 <td className="px-4 py-4">
                   {holding.isSelected ? formatNumber(holding.totalHolding) : "-"}
