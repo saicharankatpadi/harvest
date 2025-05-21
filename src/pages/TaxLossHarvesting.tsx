@@ -67,6 +67,37 @@ const TaxLossHarvesting = () => {
     updateAfterHarvestingGains(updatedHoldings);
   };
 
+  // Handle selecting a specific gain type (stcg or ltcg)
+  const handleSelectGain = (index: number, gainType: 'stcg' | 'ltcg') => {
+    // Clone the original capital gains
+    if (!originalCapitalGains) return;
+
+    const newGains: CapitalGains = {
+      stcg: { ...originalCapitalGains.stcg },
+      ltcg: { ...originalCapitalGains.ltcg }
+    };
+
+    const holding = holdings[index];
+    const gain = holding[gainType].gain;
+
+    // Update the appropriate profit or loss in the capital gains
+    if (gainType === 'stcg') {
+      if (gain > 0) {
+        newGains.stcg.profits += gain;
+      } else if (gain < 0) {
+        newGains.stcg.losses += Math.abs(gain);
+      }
+    } else if (gainType === 'ltcg') {
+      if (gain > 0) {
+        newGains.ltcg.profits += gain;
+      } else if (gain < 0) {
+        newGains.ltcg.losses += Math.abs(gain);
+      }
+    }
+
+    setAfterHarvestingGains(newGains);
+  };
+
   // Calculate new gains after selection
   const updateAfterHarvestingGains = (updatedHoldings: Holding[]) => {
     if (!originalCapitalGains) return;
@@ -171,6 +202,7 @@ const TaxLossHarvesting = () => {
               holdings={holdings}
               onSelectHolding={handleSelectHolding}
               onSelectAll={handleSelectAll}
+              onSelectGain={handleSelectGain}
               visibleCount={4}
             />
           </>

@@ -86,7 +86,7 @@ const CapitalGainsCard = ({
         </div>
         
         {savings && (
-          <div className="mt-4 p-2 bg-green-900/30 rounded text-koinx-green text-center">
+          <div className="mt-4 p-2 bg-green-900/30 rounded text-white text-center">
             You're going to save {savings}
           </div>
         )}

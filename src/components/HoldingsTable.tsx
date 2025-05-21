@@ -11,6 +11,7 @@ interface HoldingsTableProps {
   holdings: Holding[];
   onSelectHolding: (index: number, checked: boolean) => void;
   onSelectAll: (checked: boolean) => void;
+  onSelectGain: (index: number, gainType: 'stcg' | 'ltcg') => void;
   visibleCount?: number;
 }
 
@@ -18,6 +19,7 @@ const HoldingsTable = ({
   holdings,
   onSelectHolding,
   onSelectAll,
+  onSelectGain,
   visibleCount = 4
 }: HoldingsTableProps) => {
   const [selectAll, setSelectAll] = useState(false);
@@ -107,7 +109,8 @@ const HoldingsTable = ({
                 <Checkbox 
                   id="selectAll" 
                   checked={selectAll}
-                  onCheckedChange={(checked) => handleSelectAll(checked as boolean)} 
+                  onCheckedChange={(checked) => handleSelectAll(checked as boolean)}
+                  className="border-white text-white" 
                 />
               </th>
               <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
@@ -187,6 +190,7 @@ const HoldingsTable = ({
                     id={`select-${holding.coin}`}
                     checked={holding.isSelected || false}
                     onCheckedChange={(checked) => handleSelect(sortedHoldings.indexOf(holding), checked as boolean)}
+                    className="border-white data-[state=checked]:bg-white data-[state=checked]:text-black"
                   />
                 </td>
                 <td className="px-4 py-4">
@@ -213,13 +217,19 @@ const HoldingsTable = ({
                 <td className="px-4 py-4">
                   {formatCurrency(holding.currentPrice)}
                 </td>
-                <td className="px-4 py-4">
+                <td 
+                  className="px-4 py-4 cursor-pointer hover:bg-gray-700/30" 
+                  onClick={() => onSelectGain(sortedHoldings.indexOf(holding), 'stcg')}
+                >
                   <div className={`${holding.stcg.gain < 0 ? "text-koinx-red" : "text-koinx-green"}`}>
                     {formatCurrency(holding.stcg.gain)}
                   </div>
                   <div className="text-xs text-gray-400">{formatNumber(holding.stcg.balance)}</div>
                 </td>
-                <td className="px-4 py-4">
+                <td 
+                  className="px-4 py-4 cursor-pointer hover:bg-gray-700/30"
+                  onClick={() => onSelectGain(sortedHoldings.indexOf(holding), 'ltcg')}
+                >
                   <div className={`${holding.ltcg.gain < 0 ? "text-koinx-red" : "text-koinx-green"}`}>
                     {formatCurrency(holding.ltcg.gain)}
                   </div>
