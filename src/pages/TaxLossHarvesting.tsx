@@ -1,0 +1,182 @@
+
+import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { fetchCapitalGains, fetchHoldings } from "@/services/api";
+import { CapitalGains, Holding } from "@/types";
+import { formatCurrency } from "@/utils/formatter";
+import CapitalGainsCard from "@/components/CapitalGainsCard";
+import HoldingsTable from "@/components/HoldingsTable";
+import { InfoIcon } from "lucide-react";
+import TaxOptimizationHint from "@/components/TaxOptimizationHint";
+
+const TaxLossHarvesting = () => {
+  const [holdings, setHoldings] = useState<Holding[]>([]);
+  const [originalCapitalGains, setOriginalCapitalGains] = useState<CapitalGains | null>(null);
+  const [afterHarvestingGains, setAfterHarvestingGains] = useState<CapitalGains | null>(null);
+  const [isInfoVisible, setIsInfoVisible] = useState(false);
+
+  // Fetch initial data
+  const { data: holdingsData, isLoading: isLoadingHoldings } = useQuery({
+    queryKey: ["holdings"],
+    queryFn: fetchHoldings,
+  });
+
+  const { data: capitalGainsData, isLoading: isLoadingCapitalGains } = useQuery({
+    queryKey: ["capitalGains"],
+    queryFn: fetchCapitalGains,
+  });
+
+  // Set initial data
+  useEffect(() => {
+    if (holdingsData) {
+      const initialHoldings = holdingsData.map(holding => ({ 
+        ...holding, 
+        isSelected: false 
+      }));
+      setHoldings(initialHoldings);
+    }
+  }, [holdingsData]);
+
+  useEffect(() => {
+    if (capitalGainsData) {
+      setOriginalCapitalGains(capitalGainsData);
+      setAfterHarvestingGains(capitalGainsData);
+    }
+  }, [capitalGainsData]);
+
+  // Handle checkbox selection
+  const handleSelectHolding = (index: number, checked: boolean) => {
+    const updatedHoldings = [...holdings];
+    updatedHoldings[index].isSelected = checked;
+    setHoldings(updatedHoldings);
+    
+    // Update after harvesting gains
+    updateAfterHarvestingGains(updatedHoldings);
+  };
+
+  // Handle select all checkbox
+  const handleSelectAll = (checked: boolean) => {
+    const updatedHoldings = holdings.map(holding => ({
+      ...holding,
+      isSelected: checked
+    }));
+    setHoldings(updatedHoldings);
+    
+    // Update after harvesting gains
+    updateAfterHarvestingGains(updatedHoldings);
+  };
+
+  // Calculate new gains after selection
+  const updateAfterHarvestingGains = (updatedHoldings: Holding[]) => {
+    if (!originalCapitalGains) return;
+
+    const newGains: CapitalGains = {
+      stcg: { ...originalCapitalGains.stcg },
+      ltcg: { ...originalCapitalGains.ltcg }
+    };
+
+    // Calculate additional gains from selected holdings
+    updatedHoldings.forEach(holding => {
+      if (holding.isSelected) {
+        // Short-term capital gains
+        if (holding.stcg.gain > 0) {
+          newGains.stcg.profits += holding.stcg.gain;
+        } else if (holding.stcg.gain < 0) {
+          newGains.stcg.losses += Math.abs(holding.stcg.gain);
+        }
+        
+        // Long-term capital gains
+        if (holding.ltcg.gain > 0) {
+          newGains.ltcg.profits += holding.ltcg.gain;
+        } else if (holding.ltcg.gain < 0) {
+          newGains.ltcg.losses += Math.abs(holding.ltcg.gain);
+        }
+      }
+    });
+
+    setAfterHarvestingGains(newGains);
+  };
+
+  // Calculate savings
+  const calculateSavings = (): number | null => {
+    if (!originalCapitalGains || !afterHarvestingGains) return null;
+    
+    const originalNet = 
+      (originalCapitalGains.stcg.profits - originalCapitalGains.stcg.losses) + 
+      (originalCapitalGains.ltcg.profits - originalCapitalGains.ltcg.losses);
+    
+    const afterNet = 
+      (afterHarvestingGains.stcg.profits - afterHarvestingGains.stcg.losses) + 
+      (afterHarvestingGains.ltcg.profits - afterHarvestingGains.ltcg.losses);
+    
+    // Only return savings if it's a positive number
+    const savings = originalNet - afterNet;
+    return savings > 0 ? savings : null;
+  };
+
+  const savings = calculateSavings();
+
+  return (
+    <div className="min-h-screen bg-koinx-dark text-white">
+      <div className="container mx-auto px-4 py-12">
+        <h1 className="text-5xl font-bold mb-8">Tax Optimisation</h1>
+        
+        <div className="flex items-center mb-4">
+          <h2 className="text-2xl font-semibold">Tax Loss Harvesting</h2>
+          <button 
+            className="ml-2 text-blue-400 hover:text-blue-300 transition-colors"
+            onClick={() => setIsInfoVisible(!isInfoVisible)}
+          >
+            <InfoIcon size={20} />
+          </button>
+        </div>
+        
+        {/* Info Box */}
+        {isInfoVisible && <TaxOptimizationHint />}
+        
+        {isLoadingCapitalGains || isLoadingHoldings ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          </div>
+        ) : (
+          <>
+            {/* Capital Gains Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+              {/* Pre Harvesting Card */}
+              {originalCapitalGains && (
+                <CapitalGainsCard 
+                  title="Pre Harvesting"
+                  type="pre"
+                  capitalGains={originalCapitalGains}
+                />
+              )}
+              
+              {/* After Harvesting Card */}
+              {afterHarvestingGains && (
+                <CapitalGainsCard 
+                  title="After Harvesting"
+                  type="after"
+                  capitalGains={afterHarvestingGains}
+                  savings={savings ? formatCurrency(savings) : null}
+                />
+              )}
+            </div>
+            
+            {/* Holdings Table */}
+            <div className="mb-8">
+              <h2 className="text-2xl font-semibold mb-4">Holdings</h2>
+              
+              <HoldingsTable 
+                holdings={holdings}
+                onSelectHolding={handleSelectHolding}
+                onSelectAll={handleSelectAll}
+              />
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default TaxLossHarvesting;
